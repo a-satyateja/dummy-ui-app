@@ -1,14 +1,11 @@
 # base image
-FROM node:latest as node
+FROM node:latest as builder
 
-# set working directory
+COPY . ./app
 WORKDIR /app
 
-# install and cache app dependencies
-COPY . .
 RUN npm install
 RUN npm run build --prod
 
 FROM nginx:alpine
-RUN rm -rf /usr/share/nginx/html/* && rm -rf /etc/nginx/nginx.conf
-COPY ./nginx.conf /etc/nginx/nginx.conf
+COPY --from=builder /app/dist/app/ /usr/share/nginx/html/
